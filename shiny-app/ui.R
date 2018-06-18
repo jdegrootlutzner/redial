@@ -3,14 +3,33 @@
 # You can find out more about building applications with Shiny here:
 #
 # http://shiny.rstudio.com
-#
+# 
 
 library(shiny)
 
 shinyUI(fluidPage(
   
   # Application title
-  titlePanel("Old Faithful Geyser Data"),
+  shinyUI(navbarPage("Telephone Project",
+                     
+                     tabPanel("Introduction",
+                              mainPanel(
+                                h3( "Project Description"),
+                                "Describe the project here"
+                                )
+                              ),
+                     
+                     tabPanel("Prototype",
+                              mainPanel(
+                                tableOutput('prototypeText')
+                              )),
+                     
+                     navbarMenu("More",
+                                tabPanel("Sub-Component A"),
+                                tabPanel("Sub-Component B"))
+
+  )),
+  
   
   # Sidebar with a slider input for number of bins
   sidebarLayout(
@@ -19,8 +38,12 @@ shinyUI(fluidPage(
                   "Number of bins:",
                   min = 1,
                   max = 50,
-                  value = 30)
-    ),
+                  value = 30),
+      tags$audio(src ="3.wav",
+                 type = "audio/wav", autoplay = NA, controls = NA)
+  ),
+    
+    #,
     
     # Show a plot of the generated distribution
     mainPanel(
