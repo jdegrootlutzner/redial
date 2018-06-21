@@ -35,3 +35,14 @@ vignettes/*.pdf
 # Shiny token, see https://shiny.rstudio.com/articles/shinyapps.html
 rsconnect/
 .Rproj.user
+
+# Google related files
+/cloudstorage/
+/GoogleAppEngineCloudStorageClient-1.9.22.1-py3.6.egg-info/
+
+# Sound files
+*.wav
+
+# Other files
+/not-for-git/
+
