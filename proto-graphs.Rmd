@@ -1,0 +1,29 @@
+---
+title: "proto-graphs"
+author: "Julian DeGroot-Lutzner"
+date: "6/18/2018"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+require(ggplot2)
+require(dplyr)
+library(readr)
+
+```
+
+
+```{r}
+transcription_text <- read_csv("~/Desktop/telephone-project/shiny-app/transcription-text.csv")
+lengths(gregexpr("\\W+", transcription_text)) + 1
+
+transcription_text <- transcription_text %>%
+  mutate(count = lengths(gregexpr("\\W+", transcriptions)) + 1) %>%
+  cbind(iteration = 1:6)
+
+transcription_text %>%
+ggplot(aes(x = iteration, y  = count )) +geom_point()
+
+```
