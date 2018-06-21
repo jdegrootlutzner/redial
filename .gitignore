@@ -37,8 +37,8 @@ rsconnect/
 .Rproj.user
 
 # Google related files
-/cloudstorage/
-/GoogleAppEngineCloudStorageClient-1.9.22.1-py3.6.egg-info/
+/google-voice/cloudstorage/
+/google-voice/GoogleAppEngineCloudStorageClient-1.9.22.1-py3.6.egg-info/
 
 # Sound files
 *.wav
