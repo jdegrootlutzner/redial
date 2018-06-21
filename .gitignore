@@ -45,4 +45,5 @@ rsconnect/
 
 # Other files
 /not-for-git/
+.DS_Store
 
