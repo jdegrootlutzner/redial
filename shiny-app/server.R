@@ -11,7 +11,6 @@ library(shiny)
 
 shinyServer(function(input, output, session) {
   
-
   fileData <- reactiveFileReader(1000, session, 'transcription-text.csv', read.csv)
   output$prototypeText <- renderTable({
     fileData()

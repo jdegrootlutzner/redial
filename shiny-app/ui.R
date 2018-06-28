@@ -21,6 +21,13 @@ shinyUI(fluidPage(
                      
                      tabPanel("Prototype",
                               mainPanel(
+                                
+                                
+                                
+                                tags$audio(src ="http://telephone-project.storage.googleapis.com/prototype-story/1.wav",
+                                           type = "audio/wav", autoplay = NA, controls = NA),
+                                tags$audio(src ="http://telephone-project.storage.googleapis.com/prototype-story/2.wav",
+                                           type = "audio/wav", autoplay = NA, controls = NA),
                                 tableOutput('prototypeText')
                               )),
                      
@@ -38,9 +45,7 @@ shinyUI(fluidPage(
                   "Number of bins:",
                   min = 1,
                   max = 50,
-                  value = 30),
-      tags$audio(src ="http://telephone-project.storage.googleapis.com/prototype-story/1.wav",
-                 type = "audio/wav", autoplay = NA, controls = NA)
+                  value = 30)
   ),
     
     #,
