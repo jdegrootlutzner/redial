@@ -18,7 +18,7 @@ When someone records a new story:
     - transcribe the story
         - write trancription to a reactive csv file
 
-"""
+
 
 tags$audio(src = "telephone-project.storage.googleapis.com/prototype-story/1.wav", type = "audio/mp3", autoplay = NA, controls = NA)
 
@@ -26,3 +26,4 @@ tags$audio(src = "telephone-project.storage.googleapis.com/prototype-story/1.wav
 <audio src="telephone-project.storage.googleapis.com/prototype-story/1.wav" type="audio/wav" autoplay controls></audio>
 </HTML>
 "
+"""
