@@ -12,6 +12,8 @@ import wave
 @date Summer 2018
 
 """
+# Settings 
+STORY_DIRECTORY = '/home/pi/Desktop/telephone-project/story-wav-files'
 
 # GPIO output numbers
 COUNTER_PIN = 2 # on the rotaty, blue and green wires
@@ -38,21 +40,21 @@ attempting_dev_mode = False # user attempting to enter developer mode
 # set up GPIOs 
 GPIO.setwarnings(True)
 GPIO.setmode(GPIO.BCM)
-GPIO.setup(COUNTER_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN )
-GPIO.setup(DIALING_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN )
+GPIO.setup(COUNTER_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
+GPIO.setup(DIALING_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
 GPIO.setup(LEVER_PIN, GPIO.IN, pull_up_down = GPIO.PUD_UP)
 
 # set up google-cloud-storage
-os.system('export GOOGLE_APPLICATION_CREDENTIALS=%s' % GOOGLE_APPLICATION_CREDENTIALS)
-client = storage.Client()
-bucket = client.get_bucket(BUCKET_NAME)
-blob = bucket.get_blob('test/test.txt')
-print(blob.download_as_string())
+#os.system('export GOOGLE_APPLICATION_CREDENTIALS=%s' % GOOGLE_APPLICATION_CREDENTIALS)
+#client = storage.Client()
+#bucket = client.get_bucket(BUCKET_NAME)
+#blob = bucket.get_blob('test/test.txt')
+#print(blob.download_as_string())
 
 
 # import list of location of the 9 stories on the phone
 input_file = open('story-info.csv', 'r')
-row = next(csv.reader(input_file))
+story_list = next(csv.reader(input_file))
 input_file.close()
 
 
@@ -78,13 +80,27 @@ def play(filename):
     code = os.system('aplay --device=plughw:0,0 %s' % filename)
     return code
 
-
 def record(filename):
     code = os.system('arecord --device=plughw:0,0 --format=S16_LE --rate 44100 -V mono %s' % filename)
     return code
 
 
-def play_story( story_number ):
+def play_story(story_number):
+    """
+    """
+    #play(intro)
+    file_name = STORY_DIRECTORY + story_list[story_number-1]
+    print(file_name)
+    play(file_name)
+
+play_story(1)
+
+def record_story(story_number):
+    """
+    """
+
+
+def upload_story():
     '''
     When someone records a new story:
     - store the story on google cloud storage
@@ -179,7 +195,7 @@ def cleanup():
 
     # Write story locations to a csv file 
     output_file = open('story-info.csv.tmp', 'w')
-    csv.writer(output_file).writerow(row)
+    csv.writer(output_file).writerow(story_list)
     output_file.close()
     # move tmp file to original csv file
     os.system('mv story-info.csv.tmp story-info.csv')       
