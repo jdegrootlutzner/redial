@@ -213,7 +213,7 @@ def main( pin ):
         elif c == 9:
             # record a new story
             print('Record a new story')
-        elif c = 10:
+        elif c == 10:
             # Play more info about project
             print('Playing more info')
         else:
