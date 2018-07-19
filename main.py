@@ -5,6 +5,9 @@ import random
 import subprocess
 import RPi.GPIO as GPIO
 from google.cloud import storage
+from google.cloud import speech
+from google.cloud.speech import enums
+from google.cloud.speech import types
 import wave
 
 """
@@ -12,7 +15,7 @@ import wave
 @date Summer 2018
 
 """
-# Settings 
+# Settings
 STORY_DIRECTORY = '/home/pi/Desktop/telephone-project/story-wav-files'
 
 # GPIO output numbers
@@ -37,7 +40,7 @@ busy = False # when true, user should be prvntd frm actn excpt for spc_action
 special_c = 0 # a count on the rotary that is used within a spc_action
 attempting_dev_mode = False # user attempting to enter developer mode
 
-# set up GPIOs 
+# set up GPIOs
 GPIO.setwarnings(True)
 GPIO.setmode(GPIO.BCM)
 GPIO.setup(COUNTER_PIN, GPIO.IN, pull_up_down = GPIO.PUD_DOWN)
@@ -59,12 +62,12 @@ input_file.close()
 
 
 def print_statuses():
-    """ Used for debugging, print the count and the status of the 
+    """ Used for debugging, print the count and the status of the
     different input pins """
     print('  c = ' + str(c))
     print('  counter pin = ' + str(GPIO.input(COUNTER_PIN)))
     print('  dialing pin = ' + str(GPIO.input(DIALING_PIN)))
-    print('  lever pin = ' + str(GPIO.input(LEVER_PIN))) 
+    print('  lever pin = ' + str(GPIO.input(LEVER_PIN)))
 
 def text_to_speech(text):
     """
@@ -84,6 +87,43 @@ def record(filename):
     code = os.system('arecord --device=plughw:0,0 --format=S16_LE --rate 44100 -V mono %s' % filename)
     return code
 
+def upload_blob(bucket_name, source_file_name, destination_blob_name):
+    """Uploads a file to the bucket."""
+    storage_client = storage.Client()
+    bucket = storage_client.get_bucket(bucket_name)
+    blob = bucket.blob(destination_blob_name)
+
+    blob.upload_from_filename(source_file_name)
+
+    print('File {} uploaded to {}.'.format(
+        source_file_name,
+        destination_blob_name))
+
+def transcribe_audio(transcript_csv, gcs_uri, csv_output_writer):
+    """Asynchronously transcribes the audio file specified by the gcs_uri."""
+    speech_client = speech.SpeechClient()
+
+    audio = types.RecognitionAudio(uri=gcs_uri)
+    config = types.RecognitionConfig(
+        encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
+        sample_rate_hertz=44100,
+        language_code='en-US')
+
+    operation = speech_client.long_running_recognize(config, audio)
+
+    print('Waiting for operation to complete...')
+    response = operation.result(timeout=90)
+    transcript = ''
+    # Each result is for a consecutive portion of the audio. Iterate through
+    # them to get the transcripts for the entire audio file.
+    for result in response.results:
+        # The first alternative is the most likely one for this portion.
+        transcript = transcript + result.alternatives[0].transcript + "\n"
+
+    # Write to row of csv file
+    output_file = open(transcript_csv, 'w')
+    csv.writer(output_file).writerow([transcript])
+    output_file.close()
 
 def play_story(story_number):
     """
@@ -101,24 +141,25 @@ def record_story(story_number):
 
 
 def upload_story():
-    '''
-    When someone records a new story:
-    - store the story on google cloud storage
-        - write the url to reactive csv file
-            http://{BUCKET_NAME}.storage.googleapis.com/{FILE_NAME}
-                - {BUCKET_NAME} = 'telephone-project' in this case
-                - {FILE_NAME} = 'name of story/ iteration of story'
-        - write 'Transcription in process' to the reactive csv file
-    - transcribe the story
-        - write trancription to a reactive csv file
-    '''
+
+    # When someone records a new story:
+    # store the story on google cloud storage
+
+    # write the url to reactive csv file
+    #    http://{BUCKET_NAME}.storage.googleapis.com/{FILE_NAME}
+    #   {BUCKET_NAME} = 'telephone-project' in this case
+    #   {FILE_NAME} = 'name of story/ iteration of story'
+
+    # write 'Transcription in process' to the reactive csv file
+    # transcribe the story
+    # write trancription to a reactive csv file
 
 def developer_mode():
     """ If the user dials a number larger than 10, play a special story """
 
 
 def main( pin ):
-    """ Function called when dial returns to resting state. If the phone is 
+    """ Function called when dial returns to resting state. If the phone is
     off the receiver and no other story is being played, then play a new story
     """
     global c, busy, special_c, attempting_dev_mode
@@ -140,10 +181,10 @@ def main( pin ):
             print('Busy. You are already using the phone.')
 
     else:
-        # This is the case in which no event has been called yet. 
+        # This is the case in which no event has been called yet.
         # Allow the user to dial a number and signal an event
         if c == 0:
-            #do nothing 
+            #do nothing
             print('no number dialed')
         elif c >= 1 and c <= 10 :
             busy = True
@@ -155,12 +196,12 @@ def main( pin ):
 
             # wait until event is over then set busy to false
             busy = False # temp, may be better to feed in bool to story call
-        elif c > 10: 
+        elif c > 10:
             busy = True
             print('easter egg')
             #text_to_speech(EASTER_EGG)
             attempting_dev_mode = True
-            #YOU ARE HERE - FIGURING OUT LOCK ________ 
+            #YOU ARE HERE - FIGURING OUT LOCK ________
         print('resetting')
         c = 0
         special_c = 0
@@ -180,7 +221,7 @@ def count(pin):
         print('counting' , c)
 
 #GPIO.add_event_detect( DIALING_PIN , GPIO.BOTH , callback = main )
-GPIO.add_event_detect(COUNTER_PIN, GPIO.FALLING, callback=count, 
+GPIO.add_event_detect(COUNTER_PIN, GPIO.FALLING, callback=count,
                                                     bouncetime=85)
 
 GPIO.add_event_detect(DIALING_PIN, GPIO.RISING, callback = main)
@@ -193,12 +234,12 @@ def cleanup():
     GPIO.remove_event_detect(DIALING_PIN)
     GPIO.cleanup()
 
-    # Write story locations to a csv file 
+    # Write story locations to a csv file
     output_file = open('story-info.csv.tmp', 'w')
     csv.writer(output_file).writerow(story_list)
     output_file.close()
     # move tmp file to original csv file
-    os.system('mv story-info.csv.tmp story-info.csv')       
+    os.system('mv story-info.csv.tmp story-info.csv')
 
 try:
     while True:
