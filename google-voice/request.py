@@ -37,7 +37,7 @@ def transcribe_gcs(gcs_uri, csv_output_writer):
     operation = client.long_running_recognize(config, audio)
 
     print('Waiting for operation to complete...')
-    response = operation.result(timeout=600)
+    response = operation.result(timeout=90)
     transcript = ""
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
