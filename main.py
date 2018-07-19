@@ -24,6 +24,12 @@ DIALING_PIN = 3 # on when dialing, off when resting, white wires
 LEVER_PIN = 27 # lever that phone sits on, on when down, off when up
 
 SOUND_CARD = 1 # location of usb sound card
+# Variables used for determining for naming new recording files                 
+EVOLUTION_DIGITS = 3 # number if digits allocated for evol digits; i.e. 000-999
+AUDIO_FILE_TYPE = '.wav' # file type of audio file
+MAX_EVOLUTIONS = 10**EVOLUTION_DIGITS - 1 # max number of evolutions; i.e. 999
+NUM_CHARS_FILE_TYPE = len(AUDIO_FILE_TYPE) # most usually 4
+CHARS_BACK = EVOLUTION_DIGITS + NUM_CHARS_FILE_TYPE # num chars to upd. in rcrd
 
 # Google Cloud parameters
 BUCKET_NAME = 'telephone-project'
@@ -130,18 +136,31 @@ def play_story(story_number):
     """
     #play(intro)
     file_name = STORY_DIRECTORY + story_list[story_number-1]
-    print(file_name)
     play(file_name)
 
-play_story(1)
+def record_new_evolution(story_number):
+    """
+    """
+    old_file = story_list[story_number - 1]
+    last_evolution = int(old_file[-(CHARS_BACK):-(NUM_CHARS_FILE_TYPE)])
+    if last_evolution < MAX_EVOLUTIONS:
+        new_file = (old_file[:-(CHARS_BACK)] +
+            '%03d' % (last_evolution + 1) +
+            AUDIO_FILE_TYPE)
+        record(STORY_DIRECTORY + new_file)
+        story_list[story_number - 1] = new_file
+    else:
+        print('Wow, that is a lot of recordings')
+        
 
-def record_story(story_number):
+def record_new_story():
     """
     """
 
 
 def upload_story():
-
+    """
+    """
     # When someone records a new story:
     # store the story on google cloud storage
 
@@ -156,7 +175,7 @@ def upload_story():
 
 def developer_mode():
     """ If the user dials a number larger than 10, play a special story """
-
+    
 
 def main( pin ):
     """ Function called when dial returns to resting state. If the phone is
@@ -186,22 +205,22 @@ def main( pin ):
         if c == 0:
             #do nothing
             print('no number dialed')
-        elif c >= 1 and c <= 10 :
+        elif c >= 1 and c <= 8:
             busy = True
             print('playing story : ' + str(c))
-            # play_story( c )
-            if GPIO.event_detected(COUNTER_PIN):
-                print('number dialed')
-
-
-            # wait until event is over then set busy to false
+            play_story(c)
             busy = False # temp, may be better to feed in bool to story call
-        elif c > 10:
+        elif c == 9:
+            # record a new story
+            print('Record a new story')
+        elif c = 10:
+            # Play more info about project
+            print('Playing more info')
+        else:
             busy = True
             print('easter egg')
-            #text_to_speech(EASTER_EGG)
+            text_to_speech(EASTER_EGG)
             attempting_dev_mode = True
-            #YOU ARE HERE - FIGURING OUT LOCK ________
         print('resetting')
         c = 0
         special_c = 0
