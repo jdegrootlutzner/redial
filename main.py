@@ -24,7 +24,7 @@ DIALING_PIN = 3 # on when dialing, off when resting, white wires
 LEVER_PIN = 27 # lever that phone sits on, on when down, off when up
 
 SOUND_CARD = 1 # location of usb sound card
-# Variables used for determining for naming new recording files                 
+# Variables used for determining for naming new recording files
 EVOLUTION_DIGITS = 3 # number if digits allocated for evol digits; i.e. 000-999
 AUDIO_FILE_TYPE = '.wav' # file type of audio file
 MAX_EVOLUTIONS = 10**EVOLUTION_DIGITS - 1 # max number of evolutions; i.e. 999
@@ -151,11 +151,13 @@ def record_new_evolution(story_number):
         story_list[story_number - 1] = new_file
     else:
         print('Wow, that is a lot of recordings')
-        
+
 
 def record_new_story():
     """
     """
+    # record audio in temp folder, when we are ready we will move to real direct
+    # upload audio file to appropriate directory
 
 
 def upload_story():
@@ -167,15 +169,17 @@ def upload_story():
     # write the url to reactive csv file
     #    http://{BUCKET_NAME}.storage.googleapis.com/{FILE_NAME}
     #   {BUCKET_NAME} = 'telephone-project' in this case
-    #   {FILE_NAME} = 'name of story/ iteration of story'
+    #   {FILE_NAME} = 'story_number/ evolution of story'
 
     # write 'Transcription in process' to the reactive csv file
     # transcribe the story
     # write trancription to a reactive csv file
 
+    # remoove old files (dont need to implement this right away)
+
 def developer_mode():
     """ If the user dials a number larger than 10, play a special story """
-    
+
 
 def main( pin ):
     """ Function called when dial returns to resting state. If the phone is
@@ -212,7 +216,10 @@ def main( pin ):
             busy = False # temp, may be better to feed in bool to story call
         elif c == 9:
             # record a new story
+            busy = True
             print('Record a new story')
+            text_to_speech('Welcome to the story collector. By dialing 8 you can record a new story that will be come a part of the Retell Project. You will have one minute to record a first person story. Pretend that you are telling your story to a friend. Need inspiration? Dial one for a story prompt. When you are ready to record dial two and wait for the beep.')
+
         elif c == 10:
             # Play more info about project
             print('Playing more info')
@@ -245,6 +252,9 @@ GPIO.add_event_detect(COUNTER_PIN, GPIO.FALLING, callback=count,
 
 GPIO.add_event_detect(DIALING_PIN, GPIO.RISING, callback = main)
 
+'Hello! If this is your first time calling, please dial the operator for more information.'
+
+OPERATOR_TEXT = 'Welcome to The Retell Project! This old phone houses personal stories that are told and retold by people, just like you! You will hear a story and then retell the story in your own words back to the phone. You can see how the stories change overtime by visiting retellproject.com. To get started, dial a number from one to eight to hear and retell a story. Dial nine to record your own story or leave a comment. Dial zero to here these instructions again.'
 
 
 def cleanup():

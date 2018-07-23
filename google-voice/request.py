@@ -61,5 +61,6 @@ gcs_uri = gs://<bucket_name>/<file_path_inside_bucket>
 
 
 """
-transcribe_interview()
+print('hello')
+#transcribe_interview()
 #main()
