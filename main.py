@@ -86,11 +86,11 @@ text_to_speech('Hello.')
 
 def play(filename):
     print('getting filename', filename)
-    code = os.system('aplay --device=plughw:0,0 %s' % filename)
+    code = os.system('aplay --device=plughw:%s,0 %s' % (SOUND_CARD, filename))
     return code
 
 def record(filename):
-    code = os.system('arecord --device=plughw:0,0 --format=S16_LE --rate 44100 -V mono %s' % filename)
+    code = os.system('arecord --device=plughw:%s,0 --format=S16_LE --rate 44100 -V mono %s' % (SOUND_CARD, filename))
     return code
 
 def upload_blob(bucket_name, source_file_name, destination_blob_name):
@@ -105,7 +105,7 @@ def upload_blob(bucket_name, source_file_name, destination_blob_name):
         source_file_name,
         destination_blob_name))
 
-def transcribe_audio(transcript_csv, gcs_uri, csv_output_writer):
+def transcribe_audio(transcript_csv, gcs_uri):
     """Asynchronously transcribes the audio file specified by the gcs_uri."""
     speech_client = speech.SpeechClient()
 
@@ -117,19 +117,21 @@ def transcribe_audio(transcript_csv, gcs_uri, csv_output_writer):
 
     operation = speech_client.long_running_recognize(config, audio)
 
-    print('Waiting for operation to complete...')
+    print('Waiting for transcription operation to complete...')
     response = operation.result(timeout=90)
     transcript = ''
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
     for result in response.results:
         # The first alternative is the most likely one for this portion.
-        transcript = transcript + result.alternatives[0].transcript + "\n"
+        transcript = transcript + result.alternatives[0].transcript + '.'
 
     # Write to row of csv file
-    output_file = open(transcript_csv, 'w')
+    output_file = open(transcript_csv, 'a')
     csv.writer(output_file).writerow([transcript])
     output_file.close()
+    print('Transcription complete')
+
 
 def play_story(story_number):
     """
@@ -149,22 +151,23 @@ def record_new_evolution(story_number):
             AUDIO_FILE_TYPE)
         record(STORY_DIRECTORY + new_file)
         story_list[story_number - 1] = new_file
+        return new_file
     else:
         print('Wow, that is a lot of recordings')
-
+        return None
 
 def record_new_story():
-    """
-    """
+    """"""
     # record audio in temp folder, when we are ready we will move to real direct
     # upload audio file to appropriate directory
 
 
-def upload_story():
+def upload_story(source_file, dest_file):
     """
     """
     # When someone records a new story:
     # store the story on google cloud storage
+    upload_blob(BUCKET_NAME, soure_file, dest_file)
 
     # write the url to reactive csv file
     #    http://{BUCKET_NAME}.storage.googleapis.com/{FILE_NAME}
@@ -212,8 +215,20 @@ def main( pin ):
         elif c >= 1 and c <= 8:
             busy = True
             print('playing story : ' + str(c))
+            text_to_speech('Story will start in 3, 2, 1.')
+            # play beep
             play_story(c)
-            busy = False # temp, may be better to feed in bool to story call
+            # play beep
+            text_to_speech('Now retell the story in your own voice. Focus more  on capturing the emotion of the story, and less on the specific words. Recording will start in 3, 2, 1.')
+            # change the countdown to an option for the user to dial when ready
+            new_file = record_new_evolution(c)
+            # can i do this next part in its own thread?
+            upload_blob(BUCKET_NAME, STORY_DIRECTORY + new_file, 'temp-stories' + new_file)
+            gsc_uri = ('gs://' + BUCKET_NAME + '/temp-stories' + new_file)
+            # WE SHOULD EDIT A CSV FILE THAT IS HELD REMOTELY
+            transcript_csv = STORY_DIRECTORY + new_file[:11] + 'transcript.csv'
+            transcribe_audio(transcript_csv,gsc_uri)
+            busy = False 
         elif c == 9:
             # record a new story
             busy = True
