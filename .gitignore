@@ -42,7 +42,7 @@ rsconnect/
 /google-voice/google-cloud-python/
 
 # Story sound files
-/story-wav-files/
+/recordings/
 
 # Other files
 /not-for-git/

@@ -16,7 +16,8 @@ import wave
 
 """
 # Settings
-STORY_DIRECTORY = '/home/pi/Desktop/telephone-project/story-wav-files'
+STORY_DIRECTORY = '/home/pi/Desktop/telephone-project/recordings/story-wav-files'
+INSTRUCTIONS_DIRECTORY = '/home/pi/Desktop/telephone-project/recordings/instructions'
 
 # GPIO output numbers
 COUNTER_PIN = 2 # on the rotaty, blue and green wires
@@ -41,6 +42,7 @@ EASTER_EGG = ('Poopy-di scoop. Scoop-ditty-whoop. '
              )
 
 # global variables
+new_record_count = 0
 c = 0 # c is the count on the rotary phone
 busy = False # when true, user should be prvntd frm actn excpt for spc_action
 special_c = 0 # a count on the rotary that is used within a spc_action
@@ -188,7 +190,7 @@ def main( pin ):
     """ Function called when dial returns to resting state. If the phone is
     off the receiver and no other story is being played, then play a new story
     """
-    global c, busy, special_c, attempting_dev_mode
+    global c, busy, special_c, attempting_dev_mode, new_record_count
     print('busy', busy)
     if not GPIO.input(LEVER_PIN):
         # If the phone is on the hook, do not allow anything to happen
@@ -215,11 +217,13 @@ def main( pin ):
         elif c >= 1 and c <= 8:
             busy = True
             print('playing story : ' + str(c))
-            text_to_speech('Story will start in 3, 2, 1.')
+            play(INSTRUCTIONS_DIRECTORY + '/listen.wav')
+            play(INSTRUCTIONS_DIRECTORY + '/beep.wav')
             # play beep
             play_story(c)
             # play beep
-            text_to_speech('Now retell the story in your own voice. Focus more  on capturing the emotion of the story, and less on the specific words. Recording will start in 3, 2, 1.')
+            play(INSTRUCTIONS_DIRECTORY + '/beep.wav')
+            play(INSTRUCTIONS_DIRECTORY + '/retell.wav')
             # change the countdown to an option for the user to dial when ready
             new_file = record_new_evolution(c)
             # can i do this next part in its own thread?
@@ -227,17 +231,24 @@ def main( pin ):
             gsc_uri = ('gs://' + BUCKET_NAME + '/temp-stories' + new_file)
             # WE SHOULD EDIT A CSV FILE THAT IS HELD REMOTELY
             transcript_csv = STORY_DIRECTORY + new_file[:11] + 'transcript.csv'
-            transcribe_audio(transcript_csv,gsc_uri)
+            #transcribe_audio(transcript_csv,gsc_uri)
+            # commenting this out for test run , can transcribe later
             busy = False 
         elif c == 9:
             # record a new story
             busy = True
             print('Record a new story')
-            text_to_speech('Welcome to the story collector. By dialing 8 you can record a new story that will be come a part of the Retell Project. You will have one minute to record a first person story. Pretend that you are telling your story to a friend. Need inspiration? Dial one for a story prompt. When you are ready to record dial two and wait for the beep.')
-
+            play(INSTRUCTIONS_DIRECTORY + '/record.wav')
+            play(INSTRUCTIONS_DIRECTORY + '/beep.wav')
+            record(STORY_DIRECTORY + '/new-recordings/' + str(new_record_count))
+            new_record_count = new_record_count + 1
+            busy = False
         elif c == 10:
+            busy = True
             # Play more info about project
             print('Playing more info')
+            play(INSTRUCTIONS_DIRECTORY + '/operator.wav')
+            busy = False
         else:
             busy = True
             print('easter egg')
@@ -269,7 +280,7 @@ GPIO.add_event_detect(DIALING_PIN, GPIO.RISING, callback = main)
 
 'Hello! If this is your first time calling, please dial the operator for more information.'
 
-OPERATOR_TEXT = 'Welcome to The Retell Project! This old phone houses personal stories that are told and retold by people, just like you! You will hear a story and then retell the story in your own words back to the phone. You can see how the stories change overtime by visiting retellproject.com. To get started, dial a number from one to eight to hear and retell a story. Dial nine to record your own story or leave a comment. Dial zero to here these instructions again.'
+OPERATOR_TEXT = 'Welcome to Redial. This old phone houses personal stories that are told and retold by people, just like you! You will hear a story and then retell the story in your own words back to the phone. You can see how the stories change overtime by visiting retellproject.com. To get started, dial a number from one to eight to hear and retell a story. Dial nine to record your own story or leave a comment. Dial zero to here these instructions again.'
 
 
 def cleanup():
