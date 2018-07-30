@@ -30,14 +30,14 @@ def transcribe_gcs(gcs_uri, csv_output_writer):
     audio = types.RecognitionAudio(uri=gcs_uri)
     config = types.RecognitionConfig(
         encoding=enums.RecognitionConfig.AudioEncoding.LINEAR16,
-        sample_rate_hertz=22050,
+        sample_rate_hertz=44100,
         #44100
         language_code='en-US')
 
     operation = client.long_running_recognize(config, audio)
 
     print('Waiting for operation to complete...')
-    response = operation.result(timeout=90)
+    response = operation.result(timeout=6000)
     transcript = ""
     # Each result is for a consecutive portion of the audio. Iterate through
     # them to get the transcripts for the entire audio file.
@@ -50,9 +50,9 @@ def transcribe_gcs(gcs_uri, csv_output_writer):
 
 
 def transcribe_interview():
-    output_file = open('michelle-transcription', 'w')
+    output_file = open('medhi-transcription', 'w')
     csv_output_writer = csv.writer(output_file)
-    gsc_uri = "gs://telephone-project/test/michelle-interview.wav"
+    gsc_uri = "gs://telephone-project/test/medhi-interview.wav"
     transcribe_gcs(gsc_uri, csv_output_writer)
 
 """
@@ -62,5 +62,5 @@ gcs_uri = gs://<bucket_name>/<file_path_inside_bucket>
 
 """
 print('hello')
-#transcribe_interview()
+transcribe_interview()
 #main()
