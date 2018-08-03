@@ -1,1 +1,7 @@
-# telephone-project
+![Redial](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/intro.jpg)
+![Concept](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/concept.jpg)
+![Motivation](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/motivation.jpg)
+![Construction](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/construction.jpg)
+![Website](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/website.jpg)
+![Example](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/sound.jpg)
+![Feedback](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/feedback.jpg)
