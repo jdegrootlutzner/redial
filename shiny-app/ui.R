@@ -10,9 +10,9 @@ library(shiny)
 shinyUI(fluidPage(
   
   # Application title
-  shinyUI(navbarPage("Telephone Project",
+  shinyUI(navbarPage("Redial",
                      
-                     tabPanel("Introduction",
+                     tabPanel("About",
                               mainPanel(
                                 h3( "Project Description"),
                                 "Describe the project here"
@@ -22,13 +22,31 @@ shinyUI(fluidPage(
                      tabPanel("Prototype",
                               mainPanel(
                                 
-                                
-                                
-                                tags$audio(src ="http://telephone-project.storage.googleapis.com/prototype-story/1.wav",
-                                           type = "audio/wav", autoplay = NA, controls = NA),
-                                tags$audio(src ="http://telephone-project.storage.googleapis.com/prototype-story/2.wav",
-                                           type = "audio/wav", autoplay = NA, controls = NA),
-                                tableOutput('prototypeText')
+                                fluidRow(
+                                column(6,
+                                       # julian
+                                       tags$audio(src = "https://storage.googleapis.com/telephone-project/temp-stories/story-012/julian-bbq.wav",
+                                                  type = "audio/wav", autoplay = NA, controls = NA),
+                                       
+                                        # michelle
+                                         tags$audio(src = "https://storage.googleapis.com/telephone-project/temp-stories/story-002/evolution-002.wav",
+                                                    type = "audio/wav", autoplay = NA, controls = NA),
+                                       # satvik
+                                         tags$audio(src ="https://storage.googleapis.com/telephone-project/temp-stories/story-002/evolution-003.wav",
+                                                    type = "audio/wav", autoplay = NA, controls = NA),
+                                       # mehdi
+                                       tags$audio(src = "https://storage.googleapis.com/telephone-project/temp-stories/story-012/evolution-002.wav",
+                                                  type = "audio/wav", autoplay = NA, controls = NA)
+                                  
+                                  ),
+                                column(6,
+                                       
+                                         tableOutput('prototypeText')
+                                         
+                                       
+                                       )
+                                )
+
                               )),
                      
                      navbarMenu("More",

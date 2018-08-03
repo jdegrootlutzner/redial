@@ -2,6 +2,8 @@
 .Rhistory
 .Rapp.history
 
+/shiny-app/sound-files/
+
 # Session Data files
 .RData
 
