@@ -3,6 +3,7 @@
 .Rapp.history
 
 /shiny-app/sound-files/
+/google-voice/
 
 # Session Data files
 .RData
