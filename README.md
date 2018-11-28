@@ -16,6 +16,6 @@ Overall, I found the project to be a success. In the future, I would like to fin
 
 I would like to thank everyone at the Library Innovation Lab and at the Berkman Klein Center for their help and participation in the project. Thank you Anastasia for the help with the hardware! I learned a lot this summer and had a lot of fun.
 
-Thank you for taking the time to read this. If you have any questions or are interested in continuing this project, please reach out to me by email a : [my_Github_username] (at) gmail.com
+Thank you for taking the time to read this. If you have any questions or are interested in continuing this project, please reach out to me by email below.
 
 ![Thank You!](https://github.com/jdegrootlutzner/redial/blob/master/images/slide-jpgs/thank-you.jpg)
